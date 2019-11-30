@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('../components/header'); -%>
+</head>
+
+<body>
+    <%- include('../components/navbar'); -%>
+
+    <div class="row container">
+        <div class="col s12 l12">
+            <br>
+            <div class="row">
+                <table class="striped">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Amount</th>
+                            <th>Return Date</th>
+                            <th>Delete</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+            <div class="row right-align">
+                <div class="col s12">
+                    <a onclick="send_form()" class="waves-effect waves-light btn blue">Confirm</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <%- include('../components/script'); -%>
+    <script>
+        if (localStorage.getItem('item') == null) {
+            window.location.href = "/hardware-house-system/us-central1/app/show/all-device";
+        } else {
+            localStorage.getItem('item').split(",").forEach(val => {
+                $('tbody').append(`
+                    <tr>
+                        <td>${val}</td>
+                        <td>
+                            <input id="amount" type="number" class="validate">
+                            <label for="amount">Amount</label>
+                        </td>
+                        <td>
+                            <input id="return_date" type="date">
+                            <label for="return_date">Date</label>
+                        </td>
+                        <td>
+                            <a onclick="del('${val}')" class="waves-effect waves-light btn red">ลบ</a>
+                        </td>
+                    </tr>
+                `);
+            });
+        }
+
+        function del(name) {
+            $(document).ready(function () {
+                var newArr = localStorage.getItem('item').split(",");
+                newArr.splice(newArr.indexOf(name), 1);
+                localStorage.setItem('item', newArr.toString());
+                $('tbody tr td:contains("' + name + '")').parent().remove();
+                if (localStorage.getItem('item') == "") {
+                    localStorage.removeItem('item');
+                }
+            });
+        }
+
+        function send_form() {
+            var formData = new FormData();
+
+            var i = 0;
+
+            $('tbody tr').each(function () {
+                if ($('td:nth-child(1)', this).text() == "" || $('td:nth-child(2) input', this).val() ==
+                "" || $('td:nth-child(3) input', this).val() == "") {
+                    i = i + 1;
+                }
+                formData.append('name', $('td:nth-child(1)', this).text());
+                formData.append('amount', $('td:nth-child(2) input', this).val());
+                formData.append('return_date', $('td:nth-child(3) input', this).val());
+            });
+
+            if (i == 0) {
+                $.ajax({
+                    url: '/hardware-house-system/us-central1/app/save-borrow',
+                    type: 'POST',
+                    data: JSON.stringify({
+                        name: formData.getAll('name'),
+                        amount: formData.getAll('amount'),
+                        return_date: formData.getAll('return_date'),
+                    }),
+                    cache: false,
+                    processData: false,
+                    contentType: false,
+                    success: function (data) {
+                        console.log(data);
+                    }
+                });
+            } else {
+                M.toast({
+                    html: 'Please fill the form.'
+                });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            var elems = document.querySelectorAll('.datepicker');
+            var instances = M.Datepicker.init(elems);
+        });
+    </script>
+</body>
+
+</html>

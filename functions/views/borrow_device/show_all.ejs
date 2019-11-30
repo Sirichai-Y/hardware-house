@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('../components/header'); -%>
+    <style>
+        .card {
+            height: 560px;
+        }
+    </style>
+</head>
+
+<body>
+    <%- include('../components/navbar'); -%>
+
+    <div class="row container">
+        <div class="col s12 l12">
+            <br>
+            <div class="row">
+                <% data.forEach(val => { %>
+                <div class="col s12 m6 l4">
+                    <div class="card medium">
+                        <div class="card-image">
+                            <img src="<%= val.url %>">
+                        </div>
+                        <div class="card-content">
+                            <span class="card-title black-text"><%= val.detail.name %></span>
+                            <p><strong>Amount : </strong><%= val.detail.amount %></p>
+                        </div>
+                        <div class="card-action">
+                            <a class="modal-trigger"
+                                onclick="showDetail('<%= val.url %>', '<%= val.detail.name %>', '<%= val.detail.description %>')"
+                                href="#detail">Detail</a>
+                            <a onclick="addCart('<%= val.detail.name %>')" href="##">Add To Cart</a>
+                        </div>
+                    </div>
+                </div>
+                <% }) %>
+            </div>
+        </div>
+    </div>
+
+    <div class="fixed-action-btn">
+        <a class="btn-floating btn-large red modal-trigger" onclick="showCart()" id="cart_number" href="#cart">0</a>
+    </div>
+
+    <div id="detail" class="modal">
+        <div class="modal-content">
+            <h4 id="title">Modal Header</h4>
+            <img id="img" class="responsive-img">
+            <h4>Description</h4>
+            <p id="desp"></p>
+        </div>
+    </div>
+
+    <div id="cart" class="modal">
+        <div class="modal-content">
+            <h4 id="title">Cart</h4>
+            <h6 id="item"></h6>
+            <br>
+            <div id="panel" class="align-center container"></div>
+        </div>
+        <div class="modal-footer">
+            <a onclick="send_form()" class="modal-close waves-effect waves-green btn-flat">Confirm</a>
+        </div>
+    </div>
+
+    <%- include('../components/script'); -%>
+    <script>
+        if (localStorage.getItem('item') != null) {
+            if (localStorage.getItem('item').search(",") == -1) {
+                $('#cart_number').text(1);
+            } else {
+                $('#cart_number').text(localStorage.getItem('item').split(",").length);
+            }
+        }
+
+        function showDetail(url, name, desp) {
+            $('#detail #title').text(name);
+            $('#detail #img').attr("src", url);
+            $('#detail #desp').text(desp);
+
+        }
+
+        function addCart(name) {
+            if (localStorage.getItem('item') != null) {
+                if (localStorage.getItem('item').search(name) == -1) {
+                    M.toast({
+                        html: 'Add ' + name + ' to cart.'
+                    });
+
+                    $('#cart_number').text(parseInt($('#cart_number').text()) + 1);
+
+                    localStorage.setItem('item', localStorage.getItem('item') + "," + name);
+                } else {
+                    M.toast({
+                        html: name + ' is already added.'
+                    });
+                }
+            } else {
+                localStorage.setItem('item', name);
+
+                M.toast({
+                    html: 'Add ' + name + ' to cart.'
+                });
+
+                $('#cart_number').text(parseInt($('#cart_number').text()) + 1);
+            }
+        }
+
+        function showCart() {
+            $('#cart #item').text("Item : " + $('#cart_number').text());
+            if ($('#cart #panel').html() == "") {
+                if (localStorage.getItem('item') != null) {
+                    localStorage.getItem('item').split(",").forEach(val => {
+                        $('#cart #panel').append(`
+                            <div id="item_amount" class="row">
+                                <div id="item_name" class="col s6">${val}</div>
+                                <div class="col s6 align-right"><a onclick="del('${val}')" class="waves-effect waves-light btn red">ลบ</a></div>
+                            </div>
+                        `);
+                    });
+                }
+            }
+        }
+
+        function send_form() {
+            if(localStorage.getItem('item') != null) {
+                window.location.href = "/hardware-house-system/us-central1/app/confirm";
+            } else {
+                M.toast({
+                    html: 'Please Add Item.'
+                });
+            }
+        }
+
+        function del(name) {
+            $(document).ready(function () {
+                var newArr = localStorage.getItem('item').split(",");
+                newArr.splice(newArr.indexOf(name), 1);
+                localStorage.setItem('item', newArr.toString());
+                $('#cart #item').text("Item : " + (parseInt($('#cart #item').text().split(" ")[2]) - 1));
+                $('#cart_number').text(parseInt($('#cart_number').text()) - 1);
+                $('#cart #panel div:contains("' + name + '")').remove();
+                if (localStorage.getItem('item') == "") {
+                    localStorage.removeItem('item');
+                    $('#cart #panel').html("");
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            var elems = document.querySelectorAll('.modal');
+            var instances = M.Modal.init(elems);
+        });
+    </script>
+</body>
+
+</html>
