@@ -15,8 +15,17 @@ app.get('/', (req, res) => {
     });
 });
 
+app.get('/register', (req, res) => {
+    res.render('register', {
+        title: "Home",
+        name: "reg"
+    });
+});
+
 app.get('*', (req, res) => {
     res.send(fs.readFileSync('../public/404.html').toString());
 });
 
 exports.app = functions.https.onRequest(app);
+
+
