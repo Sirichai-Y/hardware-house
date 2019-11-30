@@ -1,5 +1,14 @@
 # Hardware House Project
 
+ต้องลง package ก่อนใช้ เข้าไปลงในโฟลเดอร์ functions
+```
+cd functions
+npm install
+```
+และลง firebase tools
+```
+npm i -g firebase-tools
+```
 ## functions folder
 เก็บ functions ของ firebase กับ views ของ ejs 
 ### functions\index.js
@@ -50,4 +59,13 @@ exports.app = functions.https.onRequest(app);
     -- navbar.ejs เป็นแถบเมนูด้านบนของเว็บ
     -- script.ejs เป็นแถบที่ไว้ใช้เก็บ js ที่เรียกใช้ในเว็บ
 */
+```
+
+## .firebaserc
+```
+{
+  "projects": {
+    "default": "< project id ของ firebase ที่ใช้>"
+  }
+}
 ```
