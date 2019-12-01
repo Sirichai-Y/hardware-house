@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <%- include('components/header'); -%>
+  <!-- The core Firebase JS SDK is always required and must be listed first -->
+  <script src="https://www.gstatic.com/firebasejs/7.5.0/firebase-app.js"></script>
+  
+  <script src="https://www.gstatic.com/firebasejs/7.5.0/firebase-database.js"></script>
+  <!-- TODO: Add SDKs for Firebase products that you want to use
+     https://firebase.google.com/docs/web/setup#available-libraries -->
+  <script src="https://www.gstatic.com/firebasejs/7.5.0/firebase-analytics.js"></script>
+
+  <script src="https://www.gstatic.com/firebasejs/7.5.0/firebase-storage.js"></script>
+
+</head>
+
+
+<body>
+  <%- include('components/navbar'); -%>
+
+  <body>
+    <div class="container">
+      <div class="row">
+        <div class="col s12">
+          <div class="section">
+            Upload New Files
+
+            <!-- <form  action="/upload" method="post" enctype="multipart/form-data"> -->
+            <div class="file-field input-field">
+              <div class="row">
+                <div class="btn col s1">
+                  <span>Sellect File</span>
+                  <input id='upload' type="file" multiple>
+                </div>
+                <div class="file-path-wrapper col s9">
+                  <input class="file-path validate" type="text" placeholder="Upload one or more files">
+                </div>
+                <button onclick="upload()" class="btn waves-effect waves-light col s2" type="submit" name="action"
+                  value="Upload">Submit
+                  <i class="material-icons right">send</i>
+                </button>
+              </div>
+            </div>
+
+            <!-- </form> -->
+          </div>
+        </div>
+        <div class="col s12">
+          <table>
+            <thead>
+              <tr>
+                <th>type</th>
+                <th>File Name</th>
+                <th>Size</th>
+                <th>Remark</th>
+                <th>Status</th>
+                <th>Date</th>
+
+              </tr>
+            </thead>
+
+            <tbody>
+            </tbody>
+          </table>
+          No file uploaded
+
+        </div>
+      </div>
+    </div>
+  </body>
+
+  <%- include('components/script'); -%>
+</body>
+<script>
+  // Your web app's Firebase configuration
+  var firebaseConfig = {
+    apiKey: "AIzaSyDgnAd5JtkT10DX8NKgEGo_ScgbicQsxos",
+    authDomain: "software-nik.firebaseapp.com",
+    databaseURL: "https://software-nik.firebaseio.com",
+    projectId: "software-nik",
+    storageBucket: "software-nik.appspot.com",
+    messagingSenderId: "1059418587666",
+    appId: "1:1059418587666:web:a0e048ae99272d25f58ecb",
+    measurementId: "G-NXY90BM716"
+  };
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  firebase.analytics();
+</script>
+
+<script>
+  // Get a reference to the storage service, which is used to create references in your storage bucket
+  let storage = firebase.storage();
+
+  // Create a storage reference from our storage service
+  let storageRef = storage.ref();
+
+
+  function upload() {
+    let file = document.getElementById('upload').files[0]
+
+    file = new File([file], 'user-' + file.name, { type: file.type })
+    
+    const meta = {
+       name: file.name,
+       contentType: file.type,
+    }
+
+    //Process save metadata
+    const databaseRef = firebase.database().ref('/filepond');
+    databaseRef.child("UserID").push(meta );
+    
+    const ref = storageRef.child(file.name)
+    ref.put(file).then(snapshot => {
+      console.log('uploaded', snapshot)
+    })
+
+    console.log('preparing upload')
+    console.log('file', file)
+
+    var path = ref.fullPath
+
+    // File name is 'space.jpg'
+    var name = ref.name
+
+    // Points to 'images'
+    var imagesRef = ref.parent
+    console.log('ref', path, name, imagesRef)
+
+
+  }
+  const downloadRef = storageRef.child('prof_issue.pdf').getDownloadURL().then(url => {
+    console.log('url', url)
+  })
+</script>
+
+</html>
