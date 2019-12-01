@@ -1,28 +1,44 @@
 <style>
-        .nav-wrapper {
-          background: linear-gradient(to right, #000b18 , #00172D,#00264D,#02386E,#00498D,#0052A2,purple);
-         
-        }
-        .sidenav {
-          /* background: linear-gradient(to right, #000b18 , #00172D,#00264D,#02386E,#00498D,#0052A2,purple); */
-          color: aliceblue;
-        }
+    .nav-wrapper {
+        background: linear-gradient(to right, #000b18, #00172D, #00264D, #02386E, #00498D, #0052A2, purple);
+
+    }
+
+    .sidenav {
+        /* background: linear-gradient(to right, #000b18 , #00172D,#00264D,#02386E,#00498D,#0052A2,purple); */
+        color: aliceblue;
+    }
 </style>
 <div class="navbar-fixed">
     <nav>
         <div class="nav-wrapper blue darken-4">
             <a href="#!" class="brand-logo">Hardware House</a>
             <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+            <% if(uid == "") { %>
             <ul class="right hide-on-med-and-down">
                 <li><a href="register">Register</a></li>
                 <li><a href="login">Login</a></li>
             </ul>
+            <% } else { %>
+            <ul class="right hide-on-med-and-down">
+                <li><a href="all-device">Device</a></li>
+                <li><a href="edit_profile">Profile</a></li>
+                <li><a href="borrow-list">List</a></li>
+            </ul>
+            <% } %>
         </div>
     </nav>
 </div>
 
-<ul class="sidenav cyan lighten-5" id="mobile-demo" >
+<% if(uid == "") { %>
+<ul class="sidenav cyan lighten-5" id="mobile-demo">
     <li><a href="register">Register</a></li>
     <li><a href="login">Login</a></li>
-
 </ul>
+<% } else { %>
+<ul class="sidenav cyan lighten-5" id="mobile-demo">
+    <li><a href="all-device">Device</a></li>
+    <li><a href="edit_profile">Profile</a></li>
+    <li><a href="borrow-list">List</a></li>
+</ul>
+<% } %>
