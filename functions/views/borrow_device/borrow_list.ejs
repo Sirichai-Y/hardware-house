@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('../components/header'); -%>
+</head>
+
+<body>
+    <%- include('../components/navbar'); -%>
+
+    <div class="row container">
+        <div class="col s12 l12">
+            <br>
+            <div class="row">
+                <table class="striped">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Item</th>
+                            <th>Amount</th>
+                            <th>Receive Date</th>
+                            <th>Receive Status</th>
+                            <th>Return Date</th>
+                            <th>Return Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <% data.forEach(function(val, i) { %>
+                        <tr>
+                            <td><%= i + 1 %></td>
+                            <td><%= val.item %></td>
+                            <td><%= val.amount %></td>
+                            <td><%= val.borrow_date.toDate().getDate() %>/<%= val.borrow_date.toDate().getMonth() + 1 %>/<%= val.borrow_date.toDate().getFullYear() %></td>
+                            <td>
+                                <% if(val.receive_status == false) { %>
+                                    ยังไม่ได้มารับอุปกรณ์
+                                <% } else { %>
+                                    รับอุปกรณ์แล้ว
+                                <% } %>                            
+                            </td>
+                            <td><%= val.return_date.toDate().getDate() %>/<%= val.return_date.toDate().getMonth() + 1 %>/<%= val.return_date.toDate().getFullYear() %></td>
+                            <td>
+                                <% if(val.return_status == false) { %>
+                                    ยังไม่ได้คืนอุปกรณ์
+                                <% } else { %>
+                                    คืนอุปกรณ์แล้ว
+                                <% } %>                            
+                            </td>
+                        </tr>
+                    <% }) %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <%- include('../components/script'); -%>
+</body>
+
+</html>
