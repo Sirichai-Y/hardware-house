@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <%- include('../components/header'); -%>
+</head>
+
+<body>
+  <%- include('../components/navbar'); -%>
+
+  <!-- Content Here -->
+  <div class="containner">
+    <div class="row">
+      <div class="col l5"></div>
+      <div class="col s12 l4">
+        <h2>Register</h2>
+        <div class="col l4"></div>
+      </div>
+
+    </div>
+    <div class="row">
+      <div class="col l2"></div>
+      <form class="col s12 l10" action="/hardware-house-system/us-central1/app/reg" method="POST">
+        <div class="row">
+          <div class="input-field col s6 l5">
+            <input id="first_name" name="first_name" type="text" class="validate" required="">
+            <label for="first_name">First Name</label>
+          </div>
+          <div class="input-field col s6 l5">
+            <input id="last_name" name="last_name" type="text" class="validate" required="">
+            <label for="last_name">Last Name</label>
+          </div>
+        </div>
+        <div class="row">
+          <div class="input-field col s6 l5">
+            <input id="iden" name="studentID" type="text" class="validate" required="">
+            <label for="studentID">Student ID</label>
+          </div>
+          <div class="input-field col s6 l5">
+            <input id="email" name="email" type="email" class="validate" required="">
+            <label for="email">Email</label>
+          </div>
+        </div>
+        <div class="row">
+          <div class="input-field col s6 l5">
+            <input id="password" name="password" type="password" class="validate" required="">
+            <label for="password">Password</label>
+          </div>
+          <div class="input-field col s6 l5">
+            <input id="confirm-password" name="confirm-password" type="password" class="validate" required="">
+            <label for="confirm-password">Confirm-Password</label>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col s4"></div>
+          <div class="col s3">
+            <button class="btn blue darken-4 waves-effect waves-light" type="submit">Submit
+              <i class="material-icons right">send</i>
+            </button>
+          </div>
+          <!-- <div class="col s4"></div> -->
+
+        </div>
+
+      </form>
+      <div class="col s1"></div>
+
+    </div>
+  </div>
+
+  <%- include('../components/script'); -%>
+  <script>
+    if (sessionStorage.getItem('token') != null) {
+      window.location.href = '/hardware-house-system/us-central1/app/show/all-device'
+    }
+  </script>
+</body>
+
+</html>

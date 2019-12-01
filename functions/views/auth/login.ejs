@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <%- include('../components/header'); -%>
+</head>
+
+<body>
+  <%- include('../components/navbar'); -%>
+
+  <!-- Content Here -->
+  <div class="containner">
+
+    <div class="row">
+      <div class="col l5"></div>
+      <div class="col s12 l4">
+        <h2>Login Form</h2>
+      </div>
+
+    </div>
+    <div class="row">
+      <div class="col l2"></div>
+      <div class="col s12 l9">
+      <div class="row">
+        <div class="col l3"></div>
+        <div class="input-field col s12 l5">
+          <input id="studentID" name="studentID" type="text" class="validate" required="">
+          <label for="studentID">Student ID</label>
+        </div>
+        <div class="col l3"></div>
+      </div>
+      <div class="row">
+        <div class="col l3"></div>
+        <div class="input-field col s12 l5">
+          <input id="password" name="password" type="password" class="validate" required="">
+          <label for="password">Password</label>
+        </div>
+        <div class="col l3"></div>
+      </div>
+      <div class="row">
+        <div class="col l5"></div>
+        <div class="col s12 l3">
+          <button class="btn blue darken-4 waves-effect waves-light" onclick="login()">Login
+            <i class="material-icons right">send</i>
+          </button>
+        </div>
+        <div class="col l3"></div>
+      </div>
+      </div>
+    </div>
+  </div>
+
+  <%- include('../components/script'); -%>
+  <script>
+    if ($('.hide').text() != "") {
+      M.toast({
+        html: $('.hide').text()
+      });
+    }
+
+    if(sessionStorage.getItem('token') != null) {
+      window.location.href = '/hardware-house-system/us-central1/app/show/all-device'
+    }
+
+    function login() {
+      $.ajax({
+        url: '/hardware-house-system/us-central1/app/login_form',
+        type: 'POST',
+        data: JSON.stringify({
+          user: $('#studentID').val(),
+          pass: $('#password').val()
+        }),
+        cache: false,
+        processData: false,
+        contentType: false,
+        success: function (data) {
+          console.log(data);
+          if (data[0] == true) {
+            console.log(data);
+            sessionStorage.setItem('token', data[1]);
+            $('meta[name="Authorization"]').attr('content', "Bearer " + data[1]);
+            document.cookie = "Authorization=Bearer " + data[1] + ";";
+            window.location.href = "/hardware-house-system/us-central1/app/";
+          } else {
+            M.toast({
+              html: data[1]
+            });
+          }
+        }, error(data) {
+          console.log(data);
+        }
+      });
+    }
+  </script>
+</body>
+
+</html>
