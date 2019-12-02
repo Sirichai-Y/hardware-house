@@ -1,5 +1,7 @@
 # Hardware House Project
 
+> Demo Live: https://us-central1-hardware-house-system.cloudfunctions.net/app/login
+
 ต้องลง package ก่อนใช้ เข้าไปลงในโฟลเดอร์ functions
 ```
 cd functions
