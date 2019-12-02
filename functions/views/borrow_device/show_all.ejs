@@ -61,6 +61,7 @@
             <div id="panel" class="align-center container"></div>
         </div>
         <div class="modal-footer">
+            <a href="#" class="modal-close waves-effect waves-green btn-flat">Cancel</a>
             <a onclick="send_form()" class="modal-close waves-effect waves-green btn-flat">Confirm</a>
         </div>
     </div>
@@ -126,7 +127,7 @@
 
         function send_form() {
             if(localStorage.getItem('item') != null) {
-                window.location.href = "/hardware-house-system/us-central1/app/confirm";
+                window.location.href = "confirm";
             } else {
                 M.toast({
                     html: 'Please Add Item.'

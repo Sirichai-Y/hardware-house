@@ -2,73 +2,97 @@
 <html lang="en">
 
 <head>
-    <%- include('../components/header'); -%>
+  <%- include('../components/header'); -%>
 </head>
 
 <body>
-    <%- include('../components/navbar'); -%>
-    
-    <!-- Content Here -->
-    <div class="containner">
+  <%- include('../components/navbar'); -%>
+
+  <!-- Content Here -->
+  <div class="containner">
+    <div class="row">
+      <div class="col s12">
+        <h2>Edit Profile</h2>
+      </div>
+
+    </div>
+    <div class="row">
+      <form class="col s12" action="update_profile" method="POST">
         <div class="row">
-          <div class="col s12">
-            <h2>Edit Profile</h2>
+          <div class="input-field col s6">
+            <input value="<%= first_name %>" id="first_name" name="first_name" type="text" class="validate">
+            <label for="first_name">First Name</label>
           </div>
-  
+          <div class="input-field col s6">
+            <input value="<%= last_name%>" id="last_name" name="last_name" type="text" class="validate">
+            <label for="last_name">Last Name</label>
+          </div>
         </div>
-      <div class="row">
-          <form class="col s12" action="/hardware-house-system/us-central1/app/update_profile" method="POST">
-            <div class="row">
-              <div class="input-field col s6">
-                <input value="<%= first_name %>" id="first_name" name="first_name" type="text" class="validate">
-                <label for="first_name">First Name</label>
-              </div>
-              <div class="input-field col s6">
-                <input value="<%= last_name%>" id="last_name" name="last_name" type="text" class="validate" >
-                <label for="last_name">Last Name</label>
-              </div>
-            </div>
-            <div class="row">
-              <div class="input-field col s6">
-                <input disabled value="<%= studentID%>" id="iden" name="studentID" type="text" class="validate" >
-                <label for="studentID">Student ID</label>
-              </div>
-              <div class="input-field col s6">
-                  <input value="<%= email%>" id="email" name="email" type="email" class="validate" >
-                  <label for="email">Email</label>
-                </div>
-            </div>
-            <div class="row">
-              <div class="input-field col s6">
+        <div class="row">
+          <div class="input-field col s6">
+            <input disabled value="<%= studentID%>" id="iden" name="studentID" type="text" class="validate">
+            <label for="studentID">Student ID</label>
+          </div>
+          <div class="input-field col s6">
+            <input value="<%= email%>" id="email" name="email" type="email" class="validate">
+            <label for="email">Email</label>
+          </div>
+        </div>
+        <div class="row">
+          <!-- <div class="input-field col s6">
                 <input id="old-password" name="old_password" type="password" class="validate">
                 <label for="old-password">Old Password</label>
-              </div>
-              <div class="input-field col s6">
-                <input id="new-password" name="new_password" type="password" class="validate">
-                <label for="new-password">New Password</label>
-              </div>
-              <div class="input-field col s6">
-                <input id="confirm-password" name="confirm_password" type="password" class="validate">
-                <label for="confirm-password">Confirm-Password</label>
-              </div>
-            </div>
-            <div class="row">
-              <div class="col s5"></div>
-              <div class="col s3">
-                  <button class="btn blue darken-4 waves-effect waves-light" type="submit" >Submit
-                      <i class="material-icons right">send</i>
-                    </button>
-              </div>
-              <!-- <div class="col s4"></div> -->
-  
-            </div>
-      
-          </form>
+              </div> -->
+          <div class="input-field col s6">
+            <input id="new-password" name="new_password" type="password" class="validate">
+            <label for="new-password">New Password</label>
+          </div>
+          <div class="input-field col s6">
+            <input id="confirm-password" name="confirm_password" type="password" class="validate">
+            <label for="confirm-password">Confirm-Password</label>
+          </div>
         </div>
-      </div>
-  
+        <div class="row">
+          <div class="col s5"></div>
+          <div class="col s3">
+            <button class="btn blue darken-4 waves-effect waves-light" id="send" type="submit">Submit
+              <i class="material-icons right">send</i>
+            </button>
+          </div>
+          <!-- <div class="col s4"></div> -->
 
-    <%- include('../components/script'); -%>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+
+  <%- include('../components/script'); -%>
+  <script>
+    $(document).ready(function () {
+      if ($("#new-password").val() == "") {
+        $('#send').attr('disabled', false);
+      }
+
+      $("#new-password").on("input", function () {
+        if ($("#confirm-password").val() == "") $('#send').attr('disabled', true);
+        else {
+          if ($("#confirm-password").val() != $("#new-password").val()) $('#send').attr('disabled', true);
+          else $('#send').attr('disabled', false);
+        }
+      });
+
+      $("#new-password").on("input", function () {
+        if ($("#new-password").val() == "") $('#send').attr('disabled', false);
+      });
+
+      $("#confirm-password").on("input", function () {
+        if ($("#confirm-password").val() != $("#new-password").val()) $('#send').attr('disabled', true);
+        else $('#send').attr('disabled', false);
+      });
+    });
+  </script>
 </body>
 
 </html>

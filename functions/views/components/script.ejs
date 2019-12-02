@@ -4,4 +4,13 @@
         var elems = document.querySelectorAll('.sidenav');
         var instances = M.Sidenav.init(elems);
     });
+
+    function logout() {
+        console.log("AAA");
+        sessionStorage.removeItem('token');
+        $('meta[name="Authorization"]').attr('content', "");
+        document.cookie = "Authorization= ; expires = Thu, 01 Jan 1970 00:00:00 GMT;";
+        
+        window.location.reload();
+    }
 </script>

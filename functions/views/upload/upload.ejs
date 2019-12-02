@@ -2,11 +2,12 @@
 <html lang="en">
 
 <head>
-  <%- include('components/header'); -%>
+  <%- include('../components/header'); -%>
   <!-- The core Firebase JS SDK is always required and must be listed first -->
   <script src="https://www.gstatic.com/firebasejs/7.5.0/firebase-app.js"></script>
-  
+
   <script src="https://www.gstatic.com/firebasejs/7.5.0/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.5.0/firebase-firestore.js"></script>
   <!-- TODO: Add SDKs for Firebase products that you want to use
      https://firebase.google.com/docs/web/setup#available-libraries -->
   <script src="https://www.gstatic.com/firebasejs/7.5.0/firebase-analytics.js"></script>
@@ -17,24 +18,24 @@
 
 
 <body>
-  <%- include('components/navbar'); -%>
+  <%- include('../components/navbar'); -%>
 
   <body>
+    <input type="hidden" id="uid" value="<%= uid %>">
     <div class="container">
       <div class="row">
         <div class="col s12">
           <div class="section">
             Upload New Files
 
-            <!-- <form  action="/upload" method="post" enctype="multipart/form-data"> -->
             <div class="file-field input-field">
               <div class="row">
                 <div class="btn col s1">
-                  <span>Sellect File</span>
+                  <span>File</span>
                   <input id='upload' type="file" multiple>
                 </div>
                 <div class="file-path-wrapper col s9">
-                  <input class="file-path validate" type="text" placeholder="Upload one or more files">
+                  <input class="file-path validate" type="text" placeholder="Upload file">
                 </div>
                 <button onclick="upload()" class="btn waves-effect waves-light col s2" type="submit" name="action"
                   value="Upload">Submit
@@ -43,96 +44,244 @@
               </div>
             </div>
 
-            <!-- </form> -->
           </div>
         </div>
         <div class="col s12">
-          <table>
+          <table class="responsive-table centered">
             <thead>
               <tr>
-                <th>type</th>
+                <th>#</th>
                 <th>File Name</th>
                 <th>Size</th>
-                <th>Remark</th>
                 <th>Status</th>
+                <th>Filament</th>
                 <th>Date</th>
-
+                <th>Download</th>
+                <th class="col s3">Manage</th>
               </tr>
             </thead>
 
             <tbody>
+              <% if(data.length == 0) { %>
+              <tr>
+                <td colspan="8">No File Uploads</td>
+              </tr>
+              <% } else { %>
+              <% for(var i = 0; i < data.length; i++) { %>
+              <tr>
+                <td><%= i + 1 %></td>
+                <td><%= data[i].meta.name %></td>
+                <td><%= data[i].size %></td>
+                <td>
+                  <% if(data[i].status == 0) { %>
+                  อยู่ระหว่างดำเนินการพิมพ์
+                  <% } else { %>
+                  เสร็จสิ้น
+                  <% } %>
+                </td>
+                <td><%= data[i].remark %></td>
+                <td>
+                  <%= data[i].date.toDate().getDate() %>/<%= data[i].date.toDate().getMonth() + 1 %>/<%= data[i].date.toDate().getFullYear() %>
+                </td>
+                <td>
+                  <a class="btn" target="_blank" href="<%= data[i].url %>">Download</a>
+                </td>
+                <td>
+                  <a class="waves-effect waves-light btn modal-trigger yellow"
+                    onclick='edit_file("<%= data[i].meta.name %>", "<%= data[i].id %>")' href="#edit">Edit</a>
+                  <a class="waves-effect waves-light btn modal-trigger red"
+                    onclick='delete_file("<%= data[i].meta.name %>", "<%= data[i].id %>")' href="#delete">Delete</a>
+                </td>
+              </tr>
+              <% } %>
+              <% } %>
             </tbody>
           </table>
-          No file uploaded
-
         </div>
+      </div>
+    </div>
+
+    <div id="delete" class="modal">
+      <div class="modal-content">
+        <h4>Delete File</h4>
+        <p id="detail"></p>
+      </div>
+      <div class="modal-footer">
+        <a href="#!" class="modal-close waves-effect waves-green btn-flat">Cancel</a>
+        <a href="#!" id="del_confirm" class="modal-close waves-effect waves-green btn-flat">Agree</a>
+      </div>
+    </div>
+
+    <div id="edit" class="modal">
+      <div class="modal-content">
+        <h4>Edit File</h4>
+        <div class="file-field input-field">
+          <div class="row">
+            <div class="btn col s1">
+              <span>File</span>
+              <input id='edit_upload' type="file" multiple>
+            </div>
+            <div class="file-path-wrapper col s9">
+              <input class="file-path validate" type="text" placeholder="Upload file">
+            </div>
+          </div>
+        </div>
+        <br />
+        <div class="input-field col s12">
+          <select id="remark">
+            <option value="red" selected>red</option>
+            <option value="yellow">yellow</option>
+            <option value="blue">blue</option>
+          </select>
+          <label>Filament Color</label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <a href="#!" class="modal-close waves-effect waves-green btn-flat">Cancel</a>
+        <a href="#!" id="edit_confirm" class="waves-effect waves-green btn-flat">Agree</a>
       </div>
     </div>
   </body>
 
-  <%- include('components/script'); -%>
+  <%- include('../components/script'); -%>
 </body>
 <script>
-  // Your web app's Firebase configuration
   var firebaseConfig = {
-    apiKey: "AIzaSyDgnAd5JtkT10DX8NKgEGo_ScgbicQsxos",
-    authDomain: "software-nik.firebaseapp.com",
-    databaseURL: "https://software-nik.firebaseio.com",
-    projectId: "software-nik",
-    storageBucket: "software-nik.appspot.com",
-    messagingSenderId: "1059418587666",
-    appId: "1:1059418587666:web:a0e048ae99272d25f58ecb",
-    measurementId: "G-NXY90BM716"
+    apiKey: "AIzaSyBh3zhR-0k_2QSRFeIQTJWW-hoFzropS4g",
+    authDomain: "hardware-house-system.firebaseapp.com",
+    databaseURL: "https://hardware-house-system.firebaseio.com",
+    projectId: "hardware-house-system",
+    storageBucket: "hardware-house-system.appspot.com",
+    messagingSenderId: "902699651071",
+    appId: "1:902699651071:web:6673eba60ac908c1b2e1ca",
+    measurementId: "G-M2QL5L878H"
   };
-  // Initialize Firebase
+
   firebase.initializeApp(firebaseConfig);
   firebase.analytics();
 </script>
 
 <script>
-  // Get a reference to the storage service, which is used to create references in your storage bucket
+  document.addEventListener('DOMContentLoaded', function () {
+    var elems = document.querySelectorAll('select');
+    var instances = M.FormSelect.init(elems);
+    elems = document.querySelectorAll('#delete');
+    instances = M.Modal.init(elems);
+    elems = document.querySelectorAll('#edit');
+    instances = M.Modal.init(elems);
+  });
+
+  console.log($('#uid').val());
+
   let storage = firebase.storage();
 
-  // Create a storage reference from our storage service
-  let storageRef = storage.ref();
+  let storageRef = storage.ref('upload/');
 
+  let db = firebase.firestore();
 
-  function upload() {
+  function delete_file(name, doc_id) {
+    $("#delete #detail").text("Are you want to delete " + name + "?");
+
+    $('#del_confirm').click(async function () {
+      await db.collection("upload_data").doc(doc_id).delete().then(function () {
+        console.log("Document successfully deleted!");
+      }).catch(function (error) {
+        console.error("Error removing document: ", error);
+      });
+
+      var deleteRef = await storage.ref('upload/' + name);
+      await deleteRef.delete().then(function () {
+        // window.location.reload
+        console.log("Document successfully deleted!");
+      }).catch(function (error) {
+        console.log(error);
+      });
+
+      window.location.reload();
+    });
+  }
+
+  function edit_file(name, doc_id) {
+    $('#edit_confirm').click(async function () {
+      let file = document.getElementById('edit_upload').files[0]
+
+      if (file == null) {
+        await db.collection("upload_data").doc(doc_id).update({
+          remark: $("#edit #remark").val()
+        }).then(function () {
+          window.location.reload();
+        }).catch(function (error) {
+          console.error("Error updating document: ", error);
+        });
+      } else {
+        const new_name = file.name.toString().replace(/[^A-Z0-9.]/ig, "_");
+
+        file = await new File([file], $('#uid').val() + "_" + new_name, {
+          type: file.type
+        });
+
+        await db.collection("upload_data").doc(doc_id).update({
+          remark: $("#edit #remark").val(),
+          "meta.name": file.name
+        }).then(function () {
+          console.log("Document successfully updated!");
+        }).catch(function (error) {
+          console.error("Error updating document: ", error);
+        });
+
+        var deleteRef = storage.ref('upload/' + name);
+        await deleteRef.delete().then(function () {
+          window.location.reload();
+        }).catch(function (error) {
+          console.log(error);
+        });
+
+        const ref = storageRef.child(file.name)
+
+        await ref.put(file).then(snapshot => {
+          console.log('uploaded', snapshot)
+          window.location.reload();
+        });
+      }
+    });
+  }
+
+  async function upload() {
     let file = document.getElementById('upload').files[0]
 
-    file = new File([file], 'user-' + file.name, { type: file.type })
-    
+    const new_name = file.name.toString().replace(/[^A-Z0-9.]/ig, "_");
+
+    file = await new File([file], $('#uid').val() + "_" + new_name, {
+      type: file.type
+    });
+
     const meta = {
-       name: file.name,
-       contentType: file.type,
+      name: file.name,
+      contentType: file.type,
     }
 
-    //Process save metadata
-    const databaseRef = firebase.database().ref('/filepond');
-    databaseRef.child("UserID").push(meta );
-    
+    await db.collection("upload_data").add({
+        users: $('#uid').val(),
+        meta: meta,
+        size: file.size,
+        remark: "red",
+        status: false,
+        date: new Date()
+      })
+      .then(function (docRef) {
+        console.log("Document written with ID: ", docRef.id);
+      })
+      .catch(function (error) {
+        console.error("Error adding document: ", error);
+      });
+
     const ref = storageRef.child(file.name)
-    ref.put(file).then(snapshot => {
+
+    await ref.put(file).then(snapshot => {
       console.log('uploaded', snapshot)
-    })
-
-    console.log('preparing upload')
-    console.log('file', file)
-
-    var path = ref.fullPath
-
-    // File name is 'space.jpg'
-    var name = ref.name
-
-    // Points to 'images'
-    var imagesRef = ref.parent
-    console.log('ref', path, name, imagesRef)
-
-
+      window.location.reload();
+    });
   }
-  const downloadRef = storageRef.child('prof_issue.pdf').getDownloadURL().then(url => {
-    console.log('url', url)
-  })
 </script>
 
 </html>

@@ -12,7 +12,7 @@
 <div class="navbar-fixed">
     <nav>
         <div class="nav-wrapper blue darken-4">
-            <a href="#!" class="brand-logo">Hardware House</a>
+            <a href="all-device" class="brand-logo">Hardware House</a>
             <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
             <% if(uid == "") { %>
             <ul class="right hide-on-med-and-down">
@@ -23,7 +23,9 @@
             <ul class="right hide-on-med-and-down">
                 <li><a href="all-device">Device</a></li>
                 <li><a href="edit_profile">Profile</a></li>
-                <li><a href="borrow-list">List</a></li>
+                <li><a href="borrow-list">My Borrow List</a></li>
+                <li><a href="upload-file">Upload File</a></li>
+                <li><a id="logout" onclick="logout()">Logout</a></li>
             </ul>
             <% } %>
         </div>
@@ -39,6 +41,8 @@
 <ul class="sidenav cyan lighten-5" id="mobile-demo">
     <li><a href="all-device">Device</a></li>
     <li><a href="edit_profile">Profile</a></li>
-    <li><a href="borrow-list">List</a></li>
+    <li><a href="borrow-list">My Borrow List</a></li>
+    <li><a href="upload-file">Upload File</a></li>
+    <li><a id="logout" onclick="logout()">Logout</a></li>
 </ul>
 <% } %>

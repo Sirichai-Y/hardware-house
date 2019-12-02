@@ -2,19 +2,21 @@ const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 const express = require('express');
 const fs = require('fs');
-const path = require('path');
+// const path = require('path');
 const bdp = require('body-parser');
 const jwt = require('jsonwebtoken');
 
 const app = express();
 
-var serviceAccount = require(path.join(path.resolve('..'), 'hardware-house-system-firebase-adminsdk-c74mv-2f51c90b3d.json'));
+// var serviceAccount = require('../hardware-house-system-firebase-adminsdk-c74mv-2f51c90b3d.json');
 
-admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-    databaseURL: "https://hardware-house-system.firebaseio.com",
-    storageBucket: "hardware-house-system.appspot.com"
-});
+// admin.initializeApp({
+//     credential: admin.credential.cert(serviceAccount),
+//     databaseURL: "https://hardware-house-system.firebaseio.com",
+//     storageBucket: "hardware-house-system.appspot.com"
+// });
+
+admin.initializeApp();
 
 const db = admin.firestore();
 var storage = admin.storage().bucket();
@@ -32,37 +34,42 @@ var checkAuth = function (req, res, next) {
     var token = req.headers.cookie;
 
     if (token == "") {
-        res.render('auth/login', {
-            title: "Login"
-        });
+        return res.redirect('login');
+    }
+
+    if (token.search('Authorization') == -1) {
+        return res.redirect('login');
     }
 
     try {
-        var decoded = jwt.verify(token.split(" ")[1], 'Hardware_House');
+        if (token.split("=")[1].search(';') == -1) {
+            var jwt_token = token.split("=")[1];
+        } else {
+            var jwt_token = token.split("=")[1].split(";")[0].replace(";", "");
+        }
+
+        var decoded = jwt.verify(jwt_token, 'Hardware_House');
     } catch (err) {
-        res.render('auth/login', {
-            title: "Login"
-        });
+        return res.redirect('login');
     }
 
     req.uid = decoded;
 
-    next();
+    return next();
 }
 
 
 app.get('/', checkAuth, (req, res) => {
-    res.send(req.uid);
-});
-
-app.post('/show/all-device', checkAuth, async (req, res) => {
-    res.send(req.head);
+    res.render('auth/login', {
+        title: "Login",
+        uid: req.uid || ""
+    });
 });
 
 app.get('/confirm', checkAuth, async (req, res) => {
     res.render('borrow_device/confirm_item', {
         title: "Confirm Item",
-        uid: req.uid
+        uid: req.uid || ""
     });
 });
 
@@ -83,7 +90,7 @@ app.get('/borrow-list', checkAuth, async (req, res) => {
 
     res.render('borrow_device/borrow_list', {
         title: "Borrow List",
-        uid: req.uid,
+        uid: req.uid || "",
         data: data
     });
 });
@@ -103,7 +110,7 @@ app.post('/save-borrow', checkAuth, async (req, res) => {
         });
     }
 
-    res.redirect('edit_profile');
+    res.send(true);
 });
 
 app.get('/all-device', checkAuth, async (req, res) => {
@@ -134,39 +141,58 @@ app.get('/all-device', checkAuth, async (req, res) => {
         title: "Device",
         name: "EJS",
         data: data,
-        uid: req.uid
+        uid: req.uid || ""
     });
 });
+
+function humanFileSize(bytes, si) {
+    var thresh = si ? 1000 : 1024;
+    if (Math.abs(bytes) < thresh) {
+        return bytes + ' B';
+    }
+    var units = si ? ['kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'] : ['KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'];
+    var u = -1;
+    do {
+        bytes /= thresh;
+        ++u;
+    } while (Math.abs(bytes) >= thresh && u < units.length - 1);
+    return bytes.toFixed(1) + ' ' + units[u];
+}
 
 app.get('/upload-file', checkAuth, async (req, res) => {
     var data = [];
 
-    await db.collection('devices').get()
+    await db.collection('upload_data').where("users", "==", req.uid).get()
         .then((snapshot) => {
             snapshot.forEach((doc) => {
                 data.push({
                     id: doc.id,
-                    detail: doc.data(),
-                    url: ""
+                    meta: doc.data().meta,
+                    user: doc.data().users,
+                    size: humanFileSize(doc.data().size, true),
+                    remark: doc.data().remark,
+                    status: doc.data().status,
+                    url: "",
+                    date: doc.data().date
                 });
-                console.log(doc.data());
             });
         }).catch((err) => {
             console.log('Error getting documents', err);
         });
 
     for (var i = 0; i < data.length; i++) {
-        data[i].url = await storage.file("devices/" + data[i].detail.picture).getSignedUrl({
+        data[i].url = await storage.file("upload/" + data[i].meta.name).getSignedUrl({
             action: 'read',
             expires: (new Date()).setDate((new Date()).getDate() + 1)
         });
     }
 
-    res.render('borrow_device/show_all', {
-        title: "Device",
-        name: "EJS",
+    console.log(data);
+
+    res.render('upload/upload', {
+        title: "Upload File",
         data: data,
-        uid: req.uid
+        uid: req.uid || ""
     });
 });
 
@@ -215,7 +241,6 @@ app.post('/update_profile', checkAuth, async (req, res) => {
             })
             .then(function () {
                 console.log("Document successfully updated!");
-                res.send(data);
             })
             .catch(function (error) {
                 console.error("Error updating document: ", error);
@@ -254,7 +279,7 @@ app.post('/login_form', async (req, res) => {
     if (data.length == 0) {
         res.send([false, "Username/Password Wrong"]);
     } else {
-        var token = jwt.sign(data[0], "Hardware_House");
+        var token = jwt.sign(data[0], 'Hardware_House');
 
         res.send([true, token]);
     }
@@ -263,21 +288,16 @@ app.post('/login_form', async (req, res) => {
 app.get('/register', (req, res) => {
     res.render('auth/register', {
         title: "Home",
-        name: "reg"
+        name: "reg",
+        uid: ""
     });
 });
 
 app.get('/edit_profile', checkAuth, async (req, res) => {
     var data = [];
-    console.log(req.uid);
+    
     await db.collection("users").doc(req.uid)
         .get().then(function (querySnapshot) {
-            // querySnapshot.forEach(function (doc) {
-            //     // console.log(doc.id, " => ", doc.data());
-            //     data.push(doc.id);
-            //     data.push(doc.data());
-
-            // });
             data.push(querySnapshot.id);
             data.push(querySnapshot.data());
         })
@@ -292,14 +312,21 @@ app.get('/edit_profile', checkAuth, async (req, res) => {
         last_name: data[1].LastName,
         studentID: data[1].StudentID,
         email: data[1].Email,
-        uid: req.uid
+        uid: req.uid || ""
     });
 });
 
 app.get('/login', (req, res) => {
     res.render('auth/login', {
-        title: "Login"
+        title: "Login",
+        uid: ""
     });
+});
+
+app.get('/logout', (req, res) => {
+    res.clearCookie('Authorization');
+    req.cookies = "";
+    return res.redirect('login');
 });
 
 app.get('*', (req, res) => {

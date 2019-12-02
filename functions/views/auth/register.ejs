@@ -20,7 +20,7 @@
     </div>
     <div class="row">
       <div class="col l2"></div>
-      <form class="col s12 l10" action="/hardware-house-system/us-central1/app/reg" method="POST">
+      <form class="col s12 l10" action="reg" method="POST">
         <div class="row">
           <div class="input-field col s6 l5">
             <input id="first_name" name="first_name" type="text" class="validate" required="">
@@ -71,7 +71,7 @@
   <%- include('../components/script'); -%>
   <script>
     if (sessionStorage.getItem('token') != null) {
-      window.location.href = '/hardware-house-system/us-central1/app/show/all-device'
+      window.location.href = 'all-device'
     }
   </script>
 </body>
