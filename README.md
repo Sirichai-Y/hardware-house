@@ -60,12 +60,28 @@ exports.app = functions.https.onRequest(app);
     -- script.ejs เป็นแถบที่ไว้ใช้เก็บ js ที่เรียกใช้ในเว็บ
 */
 ```
-
-## .firebaserc
+# การใช้งาน
+ใส่ชื่อ Project Firebase ลงใน .firebaserc
 ```
+// .firebaserc
 {
   "projects": {
-    "default": "< project id ของ firebase ที่ใช้>"
+    "default": "< project id ของ firebase ที่ใช้ >"
   }
 }
+```
+ใส่รายละเอียดของ Firebase App
+
+```
+functions\views\upload\upload.ejs
+var firebaseConfig = {
+    apiKey: "",
+    authDomain: "",
+    databaseURL: "",
+    projectId: "",
+    storageBucket: "",
+    messagingSenderId: "",
+    appId: "",
+    measurementId: ""
+  };
 ```
