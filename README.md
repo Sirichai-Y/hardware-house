@@ -73,7 +73,7 @@ exports.app = functions.https.onRequest(app);
 ใส่รายละเอียดของ Firebase App
 
 ```
-functions\views\upload\upload.ejs
+// functions\views\upload\upload.ejs
 var firebaseConfig = {
     apiKey: "",
     authDomain: "",
